@@ -467,6 +467,10 @@ class Plane:
             if self.config.getboolean('DISCORD', 'ENABLE'):
                 role_id = self.config.get('DISCORD', 'ROLE_ID') if self.config.has_option('DISCORD', 'ROLE_ID') and self.config.get('DISCORD', 'ROLE_ID').strip() != "" else None
                 sendDis(message, self.config, role_id, self.map_file_name)
+            if self.config.getboolean("MASTODON", "ENABLE"):
+                from defMastodon import sendMastodon
+                photo = open(self.map_file_name, "rb")
+                sendMastodon(photo, message, self.config)
             #Twitter
             if self.config.getboolean('TWITTER', 'ENABLE'):
                 import tweepy
@@ -532,6 +536,12 @@ class Plane:
                     dis_message = f"{self.dis_title} {route_to}".strip()
                     role_id = self.config.get('DISCORD', 'ROLE_ID') if self.config.has_option('DISCORD', 'ROLE_ID') and self.config.get('DISCORD', 'ROLE_ID').strip() != "" else None
                     sendDis(dis_message, self.config, role_id)
+                #Mastodon
+                if self.config.getboolean('MASTODON', 'ENABLE'):
+                    message = f"{self.dis_title} {route_to}".strip()
+                    photo = open(self.map_file_name, "rb")
+                    from defMastodon import sendMastodon
+                    sendMastodon(self.map_file_name, route_to, self.config)
                 #Twitter
                 if self.config.getboolean('TWITTER', 'ENABLE'):
                     self.latest_tweet_id = self.tweet_api.update_status(status = f"{self.twitter_title} {route_to}".strip(), in_reply_to_status_id = self.latest_tweet_id).id
@@ -802,6 +812,10 @@ class Plane:
                                 sendDis(message, self.config, role_id, self.map_file_name, tfr_map_filename)
                             elif tfr_map_filename is None:
                                 sendDis(message, self.config, role_id, self.map_file_name)
+                        if self.config.getboolean('MASTODON', 'ENABLE'):
+                            photo = open(self.map_file_name, "rb")
+                            from defMastodon import sendMastodon
+                            sendMastodon(photo, message, self.config)
                         if self.config.getboolean('TWITTER', 'ENABLE'):
                             twitter_media_map_obj = self.tweet_api.media_upload(self.map_file_name)
                             media_ids = [twitter_media_map_obj.media_id]
